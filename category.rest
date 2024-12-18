@@ -1,0 +1,9 @@
+### Get Products by Category
+GET http://localhost:8080/api/categories/products/2
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTU0MTcsImV4cCI6MTczNDQ5OTAxN30.pcD91ajmIOKXCO_m4G-pV8EizuBCW9iwT3oweNqJE08
+Content-Type: application/json
+
+### Get All Categories with Products
+GET http://localhost:8080/api/categories/with-products
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTU0MTcsImV4cCI6MTczNDQ5OTAxN30.pcD91ajmIOKXCO_m4G-pV8EizuBCW9iwT3oweNqJE08
+Content-Type: application/json 
