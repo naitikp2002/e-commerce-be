@@ -10,7 +10,7 @@ const brandRouter = require("./routes/brandRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 var corsOptions = {
-  origin: "https://localhost:8081",
+  origin: "http://localhost:3000",
 };
 const db = require("./models");
 // middlewares

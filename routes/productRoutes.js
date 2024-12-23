@@ -8,7 +8,7 @@ const router = require("express").Router();
 
 router.use(authenticate);
 router.get("/all", getAllProducts);
-router.post("/add", addProduct);
 router.use(authorizeRole("admin"));
+router.post("/add", addProduct);
 
 module.exports = router;

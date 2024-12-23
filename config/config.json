@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "np@1234",
-    "database": "e-commerce",
+    "database": "ecommerce_store",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

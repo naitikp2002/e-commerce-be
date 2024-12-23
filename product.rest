@@ -1,43 +1,43 @@
 POST http://localhost:8080/api/products/add
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTU0MTcsImV4cCI6MTczNDQ5OTAxN30.pcD91ajmIOKXCO_m4G-pV8EizuBCW9iwT3oweNqJE08
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ5MzQ4ODEsImV4cCI6MTczNDkzODQ4MX0.wrjh3-CmBEAsGDyGMxWx0_M99HOhRMNAL-4ydEmQAr4
 
 {
-  "name": "Mens Tshirt",
-  "description": "Sports Tshirt for mens",
+  "name": "Jeans",
+  "description": "Jeans for Mens",
   "price": 100,
-  "rating": 4.5,
-  "stock": 100,
+  "rating": 4,
+  "stock": 50,
   "image": "https://via.placeholder.com/150",
-  "category_id": 2,
-  "brand_id": 3
+  "category_id": 1,
+  "brand_id": 1
 }
 
 ###
 
 GET http://localhost:8080/api/products/all
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTU0MTcsImV4cCI6MTczNDQ5OTAxN30.pcD91ajmIOKXCO_m4G-pV8EizuBCW9iwT3oweNqJE08
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuYWl0aWtwYXRlMmxAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzQ5MzIxOTQsImV4cCI6MTczNDkzNTc5NH0.X4hPy1RUGwwTUafa-X6DCCNXQscSKbSGfOEP7tTS84Q
 ###
 
 GET http://localhost:8080/api/brands/all
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTE2NzUsImV4cCI6MTczNDQ5NTI3NX0.TkW5yhMUEhEva1N8JN2sNgoCEaSBgxfmDk5xkCcQKCk
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ5MzQ1OTQsImV4cCI6MTczNDkzODE5NH0.2xu0nHQHO1BK3bonkB78Zvh-W99BML-vkMkpeeRhCAw
 
 ###
 
 POST http://localhost:8080/api/categories/add
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTE2NzUsImV4cCI6MTczNDQ5NTI3NX0.TkW5yhMUEhEva1N8JN2sNgoCEaSBgxfmDk5xkCcQKCk
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ5MzQ1OTQsImV4cCI6MTczNDkzODE5NH0.2xu0nHQHO1BK3bonkB78Zvh-W99BML-vkMkpeeRhCAw
 
 {
-  "name": "Clothes"
+  "name": "Shoes"
 }
 
 ###
 
 POST http://localhost:8080/api/brands/add
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ0OTE2NzUsImV4cCI6MTczNDQ5NTI3NX0.TkW5yhMUEhEva1N8JN2sNgoCEaSBgxfmDk5xkCcQKCk
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ5MzQ1OTQsImV4cCI6MTczNDkzODE5NH0.2xu0nHQHO1BK3bonkB78Zvh-W99BML-vkMkpeeRhCAw
 
 {
-  "name": "Flying machine"
+  "name": "Puma"
 }
