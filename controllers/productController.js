@@ -2,16 +2,68 @@ const db = require("../models/index");
 const Product = db.products;
 const Brand = db.brands;
 const Category = db.categories;
+const { storage } = require('../config/firebase');
+const multer = require('multer');
+const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+
+// Multer configuration for handling multiple files
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+}).array('images', 5); // 'images' is the field name, 5 is max number of files
+
 const addProduct = async (req, res, next) => {
   try {
-    const { name, description, price, rating, stock, image, brand } = req.body;
+    // Wrap multer upload in promise
+    await new Promise((resolve, reject) => {
+      upload(req, res, (err) => {
+        if (err) reject(err);
+        resolve();
+      });
+    });
+
+    const { name, description, price, rating, stock, brand_id, category_id } = req.body;
+    const imageUrls = [];
+
+    // Upload each image to Firebase
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const timestamp = Date.now();
+        const fileName = `images/${timestamp}-${file.originalname}`;
+        const storageRef = ref(storage, fileName);
+        
+        // Upload to Firebase
+        await uploadBytes(storageRef, file.buffer);
+        
+        // Get download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        imageUrls.push(downloadURL);
+      }
+    }
+
+    // Create product with multiple image URLs
     const newProduct = await Product.create({
-      ...req.body,
+      name,
+      description,
+      price,
+      rating,
+      stock,
+      brand_id,
+      category_id,
+      images: JSON.stringify(imageUrls), // Store as JSON string in MySQL
     });
 
     return res
       .status(201)
-      .json({ message: "Product added successfully", product: newProduct });
+      .json({ 
+        message: "Product added successfully", 
+        product: {
+          ...newProduct.toJSON(),
+          images: imageUrls // Send back as array
+        }
+      });
   } catch (error) {
     return next(error);
   }
@@ -33,9 +85,32 @@ const getAllProducts = async (req, res) => {
         },
       ],
     });
+
+    // Transform the products to parse the images string into array
+    const formattedProducts = products.map(product => {
+      const productJSON = product.toJSON();
+      let images = [];
+      
+      try {
+        // Attempt to parse images if it exists and is not empty
+        if (productJSON.images) {
+          images = JSON.parse(productJSON.images);
+        }
+      } catch (parseError) {
+        console.error('Error parsing images JSON:', parseError);
+        // If parsing fails, default to empty array
+        images = [];
+      }
+
+      return {
+        ...productJSON,
+        images
+      };
+    });
+
     return res
       .status(200)
-      .json({ message: "Products fetched successfully", products });
+      .json({ message: "Products fetched successfully", products: formattedProducts });
   } catch (error) {
     console.error("Error:", error);
     return res
@@ -44,4 +119,112 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getAllProducts };
+const getProductById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByPk(id, {
+      include: [
+        {
+          model: Brand,
+          as: "brand",
+        },
+        {
+          model: Category,
+          as: "category",
+        },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Parse the images JSON string into array
+    const productJSON = product.toJSON();
+    let images = [];
+    try {
+      if (productJSON.images) {
+        images = JSON.parse(productJSON.images);
+      }
+    } catch (parseError) {
+      console.error('Error parsing images JSON:', parseError);
+    }
+
+    return res.status(200).json({ 
+      message: "Product fetched successfully", 
+      product: {
+        ...productJSON,
+        images
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const editProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params; // Product ID from request params
+    const { name, description, price, rating, stock, brand_id, category_id, retainedImages } = req.body;
+
+    // Wrap multer upload in promise for new images
+    await new Promise((resolve, reject) => {
+      upload(req, res, (err) => {
+        if (err) reject(err);
+        resolve();
+      });
+    });
+
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const existingImages = JSON.parse(product.images || '[]');
+    const retainedImageUrls = JSON.parse(retainedImages || '[]'); // Images the user chose to retain
+    const newImageUrls = [];
+
+    // Upload new images to Firebase
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const timestamp = Date.now();
+        const fileName = `images/${timestamp}-${file.originalname}`;
+        const storageRef = ref(storage, fileName);
+
+        // Upload to Firebase
+        await uploadBytes(storageRef, file.buffer);
+
+        // Get download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        newImageUrls.push(downloadURL);
+      }
+    }
+
+    // Combine retained and new image URLs
+    const updatedImages = [...retainedImageUrls, ...newImageUrls];
+
+    // Update product details
+    product.name = name;
+    product.description = description;
+    product.price = price;
+    product.rating = rating;
+    product.stock = stock;
+    product.brand_id = brand_id;
+    product.category_id = category_id;
+    product.images = JSON.stringify(updatedImages); // Save updated image list
+
+    await product.save();
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      product: {
+        ...product.toJSON(),
+        images: updatedImages, // Send updated image array
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+module.exports = { addProduct, getAllProducts, getProductById, editProduct };

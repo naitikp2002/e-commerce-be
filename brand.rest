@@ -7,3 +7,7 @@ Content-Type: application/json
 GET http://localhost:8080/api/brands/with-products
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ5MzQ1OTQsImV4cCI6MTczNDkzODE5NH0.2xu0nHQHO1BK3bonkB78Zvh-W99BML-vkMkpeeRhCAw
 Content-Type: application/json
+
+###
+GET http://localhost:8080/api/brands/all
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzUwMTY4NDksImV4cCI6MTczNTAyMDQ0OX0.TpVHCoPrfG9vAFq1dOnXZR_B9JNPixsVz4MJ9EDWOSQ

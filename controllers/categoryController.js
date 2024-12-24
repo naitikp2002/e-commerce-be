@@ -20,7 +20,9 @@ const addCategory = async (req, res, next) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.findAll();
+    const categories = await Category.findAll({
+      attributes: ["id", "name"],
+    });
     return res
       .status(200)
       .json({ message: "Categories fetched successfully", categories });

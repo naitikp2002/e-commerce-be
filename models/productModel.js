@@ -16,9 +16,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      image: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      images: {
+        type: DataTypes.TEXT("long"),
+        get() {
+          const rawValue = this.getDataValue("images");
+          return rawValue ? JSON.parse(rawValue) : [];
+        },
+        set(value) {
+          this.setDataValue("images", JSON.stringify(value));
+        },
       },
       price: {
         type: DataTypes.FLOAT,
@@ -55,19 +61,19 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true,
     }
   );
-  
-  Products.associate = function(models) {
-    Products.belongsTo(models.brands, { 
-      foreignKey: "brand_id", 
+
+  Products.associate = function (models) {
+    Products.belongsTo(models.brands, {
+      foreignKey: "brand_id",
       as: "brand",
-      targetKey: "id"
+      targetKey: "id",
     });
-    Products.belongsTo(models.categories, { 
-      foreignKey: "category_id", 
+    Products.belongsTo(models.categories, {
+      foreignKey: "category_id",
       as: "category",
-      targetKey: "id"
+      targetKey: "id",
     });
   };
-  
+
   return Products;
 };

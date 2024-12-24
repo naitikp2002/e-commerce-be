@@ -20,7 +20,9 @@ const addBrand = async (req, res, next) => {
 
 const getAllBrands = async (req, res) => {
   try {
-    const brands = await Brand.findAll();
+    const brands = await Brand.findAll({
+      attributes: ["id", "name"],
+    });
     return res
       .status(200)
       .json({ message: "Brands fetched successfully", brands });
