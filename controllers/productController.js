@@ -2,9 +2,9 @@ const db = require("../models/index");
 const Product = db.products;
 const Brand = db.brands;
 const Category = db.categories;
-const { storage } = require('../config/firebase');
-const multer = require('multer');
-const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+const { storage } = require("../config/firebase");
+const multer = require("multer");
+const { ref, uploadBytes, getDownloadURL } = require("firebase/storage");
 
 // Multer configuration for handling multiple files
 const upload = multer({
@@ -12,7 +12,7 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-}).array('images', 5); // 'images' is the field name, 5 is max number of files
+}).array("images", 5); // 'images' is the field name, 5 is max number of files
 
 const addProduct = async (req, res, next) => {
   try {
@@ -24,7 +24,8 @@ const addProduct = async (req, res, next) => {
       });
     });
 
-    const { name, description, price, rating, stock, brand_id, category_id } = req.body;
+    const { name, description, price, rating, stock, brand_id, category_id } =
+      req.body;
     const imageUrls = [];
 
     // Upload each image to Firebase
@@ -33,10 +34,10 @@ const addProduct = async (req, res, next) => {
         const timestamp = Date.now();
         const fileName = `images/${timestamp}-${file.originalname}`;
         const storageRef = ref(storage, fileName);
-        
+
         // Upload to Firebase
         await uploadBytes(storageRef, file.buffer);
-        
+
         // Get download URL
         const downloadURL = await getDownloadURL(storageRef);
         imageUrls.push(downloadURL);
@@ -55,33 +56,88 @@ const addProduct = async (req, res, next) => {
       images: JSON.stringify(imageUrls), // Store as JSON string in MySQL
     });
 
-    return res
-      .status(201)
-      .json({ 
-        message: "Product added successfully", 
-        product: {
-          ...newProduct.toJSON(),
-          images: imageUrls // Send back as array
-        }
-      });
+    return res.status(201).json({
+      message: "Product added successfully",
+      product: {
+        ...newProduct.toJSON(),
+        images: imageUrls, // Send back as array
+      },
+    });
   } catch (error) {
     return next(error);
   }
 };
 
+// const getAllProducts = async (req, res) => {
+//   try {
+//     const products = await Product.findAll({
+//       include: [
+//         {
+//           model: Brand,
+//           as: "brand",
+//           // attributes: ["name"],
+//         },
+//         {
+//           model: Category,
+//           as: "category",
+//           // attributes: ["name"],
+//         },
+//       ],
+//     });
+
+//     // Transform the products to parse the images string into array
+//     const formattedProducts = products.map((product) => {
+//       const productJSON = product.toJSON();
+//       let images = [];
+
+//       try {
+//         // Attempt to parse images if it exists and is not empty
+//         if (productJSON.images) {
+//           images = JSON.parse(productJSON.images);
+//         }
+//       } catch (parseError) {
+//         console.error("Error parsing images JSON:", parseError);
+//         // If parsing fails, default to empty array
+//         images = [];
+//       }
+
+//       return {
+//         ...productJSON,
+//         images,
+//       };
+//     });
+
+//     return res
+//       .status(200)
+//       .json({
+//         message: "Products fetched successfully",
+//         products: formattedProducts,
+//       });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Error fetching products", error: error.message });
+//   }
+// };
+
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: products } = await Product.findAndCountAll({
+      limit,
+      offset,
       include: [
         {
           model: Brand,
           as: "brand",
-          // attributes: ["name"],
         },
         {
           model: Category,
           as: "category",
-          // attributes: ["name"],
         },
       ],
     });
@@ -92,13 +148,11 @@ const getAllProducts = async (req, res) => {
       let images = [];
       
       try {
-        // Attempt to parse images if it exists and is not empty
         if (productJSON.images) {
           images = JSON.parse(productJSON.images);
         }
       } catch (parseError) {
         console.error('Error parsing images JSON:', parseError);
-        // If parsing fails, default to empty array
         images = [];
       }
 
@@ -108,14 +162,15 @@ const getAllProducts = async (req, res) => {
       };
     });
 
-    return res
-      .status(200)
-      .json({ message: "Products fetched successfully", products: formattedProducts });
+    res.json({
+      products: formattedProducts,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalItems: count
+    });
+
   } catch (error) {
-    console.error("Error:", error);
-    return res
-      .status(500)
-      .json({ message: "Error fetching products", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -147,44 +202,64 @@ const getProductById = async (req, res, next) => {
         images = JSON.parse(productJSON.images);
       }
     } catch (parseError) {
-      console.error('Error parsing images JSON:', parseError);
+      console.error("Error parsing images JSON:", parseError);
     }
 
-    return res.status(200).json({ 
-      message: "Product fetched successfully", 
+    return res.status(200).json({
+      message: "Product fetched successfully",
       product: {
         ...productJSON,
-        images
-      }
+        images,
+      },
     });
   } catch (error) {
     return next(error);
   }
 };
 
-const editProduct = async (req, res, next) => {
-  try {
-    const { id } = req.params; // Product ID from request params
-    const { name, description, price, rating, stock, brand_id, category_id, retainedImages } = req.body;
+const uploadEdit = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+}).array("newImages", 5); // Change field name to 'productImages'
 
-    // Wrap multer upload in promise for new images
+const updateProduct = async (req, res, next) => {
+  try {
+    // Wrap multer upload in promise with better error handling
     await new Promise((resolve, reject) => {
-      upload(req, res, (err) => {
-        if (err) reject(err);
+      uploadEdit(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+          // A Multer error occurred when uploading
+          reject({
+            status: 400,
+            message: `Upload error: ${err.message}`,
+          });
+        } else if (err) {
+          // An unknown error occurred
+          reject(err);
+        }
         resolve();
       });
     });
 
-    const product = await Product.findByPk(id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    const { id } = req.params;
+    const {
+      name,
+      description,
+      price,
+      rating,
+      stock,
+      brand_id,
+      category_id,
+      existingImages, // This will be a JSON string from frontend
+    } = req.body;
 
-    const existingImages = JSON.parse(product.images || '[]');
-    const retainedImageUrls = JSON.parse(retainedImages || '[]'); // Images the user chose to retain
+    // Parse existing images back to array
+    const existingImageUrls = JSON.parse(existingImages || "[]");
     const newImageUrls = [];
 
-    // Upload new images to Firebase
+    // Upload new images to Firebase if any
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const timestamp = Date.now();
@@ -200,31 +275,42 @@ const editProduct = async (req, res, next) => {
       }
     }
 
-    // Combine retained and new image URLs
-    const updatedImages = [...retainedImageUrls, ...newImageUrls];
+    // Combine existing and new image URLs
+    const finalImageUrls = [...existingImageUrls, ...newImageUrls];
 
-    // Update product details
-    product.name = name;
-    product.description = description;
-    product.price = price;
-    product.rating = rating;
-    product.stock = stock;
-    product.brand_id = brand_id;
-    product.category_id = category_id;
-    product.images = JSON.stringify(updatedImages); // Save updated image list
+    // Update product with combined image URLs
+    const updatedProduct = await Product.update(
+      {
+        name,
+        description,
+        price,
+        rating,
+        stock,
+        brand_id,
+        category_id,
+        images: JSON.stringify(finalImageUrls), // Store as JSON string in MySQL
+      },
+      {
+        where: { id },
+      }
+    );
 
-    await product.save();
+    // Fetch the updated product to return
+    const product = await Product.findByPk(id);
 
     return res.status(200).json({
       message: "Product updated successfully",
       product: {
         ...product.toJSON(),
-        images: updatedImages, // Send updated image array
+        images: finalImageUrls, // Send back as array
       },
     });
   } catch (error) {
-    return next(error);
+    console.error("Error updating product:", error);
+    return res.status(error.status || 500).json({
+      message: error.message || "Error updating product",
+      error: error,
+    });
   }
 };
-
-module.exports = { addProduct, getAllProducts, getProductById, editProduct };
+module.exports = { addProduct, getAllProducts, getProductById, updateProduct };

@@ -16,7 +16,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1p
 ###
 
 GET http://localhost:8080/api/products/all
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzUwMjA5MzAsImV4cCI6MTczNTAyNDUzMH0.VTHHAJnNtsCnfLebpaM_7l1Zhwf5nnUXOxXC91_pNq4
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzUwNDA3NTEsImV4cCI6MTczNTA0NDM1MX0.mo-4UU2Y3s8Kg24du0vcIHBpnqARytsEUB2HzOGhImg
 ###
 
 GET http://localhost:8080/api/products/6
