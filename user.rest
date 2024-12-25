@@ -1,0 +1,2 @@
+GET http://localhost:8080/api/users/all
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzUxMjQ2ODMsImV4cCI6MTczNTEyODI4M30.1SxZlMndi0ldz4KCfcE7sD-oerMrJZYjjlmLDDAX2Kg

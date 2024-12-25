@@ -3,10 +3,11 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const userRouter = require("./routes/userRoutes");
+const authRouter = require("./routes/authRoutes");
 const productRouter = require("./routes/productRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const brandRouter = require("./routes/brandRoutes");
+const userRouter = require("./routes/userRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 var corsOptions = {
@@ -20,7 +21,8 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", userRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);

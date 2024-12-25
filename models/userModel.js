@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: "user",
     },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },{
     underscored: true,
   });

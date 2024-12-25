@@ -313,4 +313,15 @@ const updateProduct = async (req, res, next) => {
     });
   }
 };
-module.exports = { addProduct, getAllProducts, getProductById, updateProduct };
+
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await Product.destroy({ where: { id } });
+    return res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};  
+
+module.exports = { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct };

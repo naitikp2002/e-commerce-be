@@ -2,7 +2,14 @@ const db = require('../models');
 const User = db.users;
 
 const checkDuplicateFields = async (req, res, next) => {
-  const { email, mobile } = req.body;
+  // Access form-data fields directly
+  const email = req.body.email;
+  const mobile = req.body.mobile;
+
+  // Add validation for required fields
+  if (!email || !mobile) {
+    return res.status(400).json({ message: 'Email and mobile are required' });
+  }
 
   try {
     // Check if email exists
