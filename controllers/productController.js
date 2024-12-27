@@ -126,8 +126,35 @@ const getAllProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
+    
+    // Extract filter parameters from query
+    const { category_id, brand_id, search } = req.query;
+    
+    // Build where clause for filters
+    const whereClause = {};
+    
+    // Add category and brand filters, ignore if 'all'
+    if (category_id && category_id !== 'all') whereClause.category_id = category_id;
+    if (brand_id && brand_id !== 'all') whereClause.brand_id = brand_id;
+
+    // Add search functionality
+    if (search) {
+      whereClause[db.Sequelize.Op.or] = [
+        {
+          name: {
+            [db.Sequelize.Op.like]: `%${search}%`
+          }
+        },
+        {
+          description: {
+            [db.Sequelize.Op.like]: `%${search}%`
+          }
+        }
+      ];
+    }
 
     const { count, rows: products } = await Product.findAndCountAll({
+      where: whereClause,
       limit,
       offset,
       include: [
@@ -140,6 +167,7 @@ const getAllProducts = async (req, res) => {
           as: "category",
         },
       ],
+      order: [['createdAt', 'DESC']], // Sort by newest first
     });
 
     // Transform the products to parse the images string into array
@@ -166,7 +194,12 @@ const getAllProducts = async (req, res) => {
       products: formattedProducts,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
-      totalItems: count
+      totalItems: count,
+      filters: {
+        category_id: category_id || null,
+        brand_id: brand_id || null,
+        search: search || null
+      }
     });
 
   } catch (error) {
