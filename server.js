@@ -8,6 +8,7 @@ const productRouter = require("./routes/productRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const brandRouter = require("./routes/brandRoutes");
 const userRouter = require("./routes/userRoutes");
+const cartRouter = require("./routes/cartRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 var corsOptions = {
@@ -26,6 +27,8 @@ app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);
+app.use("/api/cart", cartRouter);
+
 // testing apis
 app.get("/", (req, res) => {
   res.send("API is running...");

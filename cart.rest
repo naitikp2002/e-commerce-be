@@ -1,0 +1,12 @@
+GET http://localhost:8080/api/cart/0
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzU1NjA2OTcsImV4cCI6MTczNTU2NDI5N30.FBWWRmNW2CYIYq1sr6yOipC6I7yaX5qaz1W83jgsHjM
+
+###
+PUT http://localhost:8080/api/cart
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJuYWl0aWtwYXRlbEBnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTczNTU2MTY2OSwiZXhwIjoxNzM1NTY1MjY5fQ.FbatqcWLEntjKcxd8asttX_rUQB7QS5NijwxKlKTC7U
+
+{
+  "productId": 1,
+  "quantity": 1
+}

@@ -6,15 +6,15 @@ Content-Type: application/json
 #   "password": "admin123"
 # }
 
-{
-  "email": "admin@gmail.com",
-  "password": "123456"
-}
-
 # {
-#   "email": "naitikpatel@gmail.com",
+#   "email": "admin@gmail.com",
 #   "password": "123456"
 # }
+
+{
+  "email": "naitikpatel@gmail.com",
+  "password": "123456"
+}
 
 ###
 
@@ -35,5 +35,5 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuYWl0
 
 ###
 # Checkadmin
-GET http://localhost:8080/api/auth/user
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuYWl0aWtwYXRlMmxAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzQ5MzIxOTQsImV4cCI6MTczNDkzNTc5NH0.X4hPy1RUGwwTUafa-X6DCCNXQscSKbSGfOEP7tTS84Q
+GET http://localhost:8080/api/auth/admin
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzUyNzQ0NjMsImV4cCI6MTczNTI3ODA2M30.2LyYJ6JWRn689SpRRSh6EhCd-oWUMq2y217OpeXv-g8

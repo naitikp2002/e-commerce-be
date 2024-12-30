@@ -122,20 +122,45 @@ const addProduct = async (req, res, next) => {
 // };
 
 const getAllProducts = async (req, res) => {
+  // console.log("Query Log", req.query);
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     
     // Extract filter parameters from query
-    const { category_id, brand_id, search } = req.query;
+    const { category_id, brand_id, search, price_range, ratings } = req.query;
     
     // Build where clause for filters
     const whereClause = {};
     
-    // Add category and brand filters, ignore if 'all'
-    if (category_id && category_id !== 'all') whereClause.category_id = category_id;
-    if (brand_id && brand_id !== 'all') whereClause.brand_id = brand_id;
+    // Handle category filtering for multiple IDs
+    if (category_id && category_id !== 'all') {
+      const categories = category_id.split(',').map(id => id.trim());
+      whereClause.category_id = { [db.Sequelize.Op.in]: categories };
+    }
+
+    // Handle brand filtering for multiple IDs
+    if (brand_id && brand_id !== 'all') {
+      const brands = brand_id.split(',').map(id => id.trim());
+      whereClause.brand_id = { [db.Sequelize.Op.in]: brands };
+    }
+
+    // Handle price range filtering
+    if (price_range) {
+      const [minPrice, maxPrice] = price_range.split(',').map(Number);
+      whereClause.price = {
+        [db.Sequelize.Op.gte]: minPrice,
+        [db.Sequelize.Op.lte]: maxPrice,
+      };
+    }
+
+    // Handle ratings filtering
+    if (ratings) {
+      whereClause.rating = {
+        [db.Sequelize.Op.gte]: Number(ratings),
+      };
+    }
 
     // Add search functionality
     if (search) {
@@ -198,7 +223,9 @@ const getAllProducts = async (req, res) => {
       filters: {
         category_id: category_id || null,
         brand_id: brand_id || null,
-        search: search || null
+        search: search || null,
+        price_range: price_range || null,
+        ratings: ratings || null,
       }
     });
 
