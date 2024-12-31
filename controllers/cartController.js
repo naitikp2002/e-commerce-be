@@ -4,7 +4,7 @@ const Cart = db.cartProducts;
 
 const getCartDetails = async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.user.id;
         const cartDetails = await Cart.findAll({
             where: { user_id: userId },
             include: [

@@ -5,7 +5,7 @@ const { getCartDetails, addToCart } = require("../controllers/cartController");
 
 router.use(authenticate);
 router.get("/all", authorizeRole("admin"),getCartDetails);
-router.get("/:userId", getCartDetails);
+router.get("/", getCartDetails);
 router.put("/", addToCart);
 
 module.exports = router;
