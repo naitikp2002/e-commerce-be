@@ -10,6 +10,7 @@ const brandRouter = require("./routes/brandRoutes");
 const userRouter = require("./routes/userRoutes");
 const cartRouter = require("./routes/cartRoutes");
 const favoritesRouter = require("./routes/favoritesRoutes");
+const addressRouter = require("./routes/addressRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 var corsOptions = {
@@ -30,6 +31,7 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/favourites", favoritesRouter)
+app.use("/api/address", addressRouter);
 
 // testing apis
 app.get("/", (req, res) => {
