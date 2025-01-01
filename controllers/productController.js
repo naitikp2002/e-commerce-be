@@ -2,6 +2,7 @@ const db = require("../models/index");
 const Product = db.products;
 const Brand = db.brands;
 const Category = db.categories;
+const Favourites = db.favourites; // Add this line
 const { storage } = require("../config/firebase");
 const multer = require("multer");
 const { ref, uploadBytes, getDownloadURL } = require("firebase/storage");
@@ -68,62 +69,10 @@ const addProduct = async (req, res, next) => {
   }
 };
 
-// const getAllProducts = async (req, res) => {
-//   try {
-//     const products = await Product.findAll({
-//       include: [
-//         {
-//           model: Brand,
-//           as: "brand",
-//           // attributes: ["name"],
-//         },
-//         {
-//           model: Category,
-//           as: "category",
-//           // attributes: ["name"],
-//         },
-//       ],
-//     });
-
-//     // Transform the products to parse the images string into array
-//     const formattedProducts = products.map((product) => {
-//       const productJSON = product.toJSON();
-//       let images = [];
-
-//       try {
-//         // Attempt to parse images if it exists and is not empty
-//         if (productJSON.images) {
-//           images = JSON.parse(productJSON.images);
-//         }
-//       } catch (parseError) {
-//         console.error("Error parsing images JSON:", parseError);
-//         // If parsing fails, default to empty array
-//         images = [];
-//       }
-
-//       return {
-//         ...productJSON,
-//         images,
-//       };
-//     });
-
-//     return res
-//       .status(200)
-//       .json({
-//         message: "Products fetched successfully",
-//         products: formattedProducts,
-//       });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res
-//       .status(500)
-//       .json({ message: "Error fetching products", error: error.message });
-//   }
-// };
-
 const getAllProducts = async (req, res) => {
   // console.log("Query Log", req.query);
   try {
+    const userId = req.user.id; // Add this line
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
@@ -182,6 +131,16 @@ const getAllProducts = async (req, res) => {
       where: whereClause,
       limit,
       offset,
+      // attributes: {
+      //   include: [
+      //     [
+      //       db.Sequelize.literal(
+      //         '(CASE WHEN favourites.product_id IS NOT NULL THEN TRUE ELSE FALSE END)'
+      //       ),
+      //       'is_favourite'
+      //     ]
+      //   ]
+      // },
       include: [
         {
           model: Brand,
@@ -191,11 +150,18 @@ const getAllProducts = async (req, res) => {
           model: Category,
           as: "category",
         },
+        {
+          model: Favourites,
+          as: "favourites",
+          where: { user_id: userId },
+          required: false, // Include products even if they are not in favourites
+          attributes: ['id'] // Only need the id to check if it exists
+        }
       ],
       order: [['createdAt', 'DESC']], // Sort by newest first
     });
 
-    // Transform the products to parse the images string into array
+    // Transform the products to parse the images string into array and add favourite flag
     const formattedProducts = products.map(product => {
       const productJSON = product.toJSON();
       let images = [];
@@ -211,7 +177,8 @@ const getAllProducts = async (req, res) => {
 
       return {
         ...productJSON,
-        images
+        images,
+        favourite: productJSON.favourites.length > 0 // Add favourite flag
       };
     });
 

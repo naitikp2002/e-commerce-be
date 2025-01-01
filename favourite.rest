@@ -1,0 +1,13 @@
+PUT http://localhost:8080/api/favourite
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuYWl0aWtwYXRlMmxAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzQ5MzIxOTQsImV4cCI6MTczNDkzNTc5NH0.X4hPy1RUGwwTUafa-X6DCCNXQscSKbSGfOEP7tTS84Q
+
+{
+  "name": "Krunal",
+  "email": "krunal@gmail.com",
+  "mobile": "909090900",
+  "password": "123456"
+}
+
+###
+GET http://localhost:8080/api/favourite
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuYWl0aWtwYXRlMmxAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzQ5MzIxOTQsImV4cCI6MTczNDkzNTc5NH0.X4hPy1RUGwwTUafa-X6DCCNXQscSKbSGfOEP7tTS84Q
