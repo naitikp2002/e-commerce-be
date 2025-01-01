@@ -76,28 +76,28 @@ const getAllProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     // Extract filter parameters from query
     const { category_id, brand_id, search, price_range, ratings } = req.query;
-    
+
     // Build where clause for filters
     const whereClause = {};
-    
+
     // Handle category filtering for multiple IDs
-    if (category_id && category_id !== 'all') {
-      const categories = category_id.split(',').map(id => id.trim());
+    if (category_id && category_id !== "all") {
+      const categories = category_id.split(",").map((id) => id.trim());
       whereClause.category_id = { [db.Sequelize.Op.in]: categories };
     }
 
     // Handle brand filtering for multiple IDs
-    if (brand_id && brand_id !== 'all') {
-      const brands = brand_id.split(',').map(id => id.trim());
+    if (brand_id && brand_id !== "all") {
+      const brands = brand_id.split(",").map((id) => id.trim());
       whereClause.brand_id = { [db.Sequelize.Op.in]: brands };
     }
 
     // Handle price range filtering
     if (price_range) {
-      const [minPrice, maxPrice] = price_range.split(',').map(Number);
+      const [minPrice, maxPrice] = price_range.split(",").map(Number);
       whereClause.price = {
         [db.Sequelize.Op.gte]: minPrice,
         [db.Sequelize.Op.lte]: maxPrice,
@@ -116,14 +116,14 @@ const getAllProducts = async (req, res) => {
       whereClause[db.Sequelize.Op.or] = [
         {
           name: {
-            [db.Sequelize.Op.like]: `%${search}%`
-          }
+            [db.Sequelize.Op.like]: `%${search}%`,
+          },
         },
         {
           description: {
-            [db.Sequelize.Op.like]: `%${search}%`
-          }
-        }
+            [db.Sequelize.Op.like]: `%${search}%`,
+          },
+        },
       ];
     }
 
@@ -155,30 +155,30 @@ const getAllProducts = async (req, res) => {
           as: "favourites",
           where: { user_id: userId },
           required: false, // Include products even if they are not in favourites
-          attributes: ['id'] // Only need the id to check if it exists
-        }
+          attributes: ["id"], // Only need the id to check if it exists
+        },
       ],
-      order: [['createdAt', 'DESC']], // Sort by newest first
+      order: [["createdAt", "DESC"]], // Sort by newest first
     });
 
     // Transform the products to parse the images string into array and add favourite flag
-    const formattedProducts = products.map(product => {
+    const formattedProducts = products.map((product) => {
       const productJSON = product.toJSON();
       let images = [];
-      
+
       try {
         if (productJSON.images) {
           images = JSON.parse(productJSON.images);
         }
       } catch (parseError) {
-        console.error('Error parsing images JSON:', parseError);
+        console.error("Error parsing images JSON:", parseError);
         images = [];
       }
 
       return {
         ...productJSON,
         images,
-        favourite: productJSON.favourites.length > 0 // Add favourite flag
+        favourite: productJSON.favourites.length > 0, // Add favourite flag
       };
     });
 
@@ -193,9 +193,8 @@ const getAllProducts = async (req, res) => {
         search: search || null,
         price_range: price_range || null,
         ratings: ratings || null,
-      }
+      },
     });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -349,6 +348,12 @@ const deleteProduct = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-};  
+};
 
-module.exports = { addProduct, getAllProducts, getProductById, updateProduct, deleteProduct };
+module.exports = {
+  addProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+};
