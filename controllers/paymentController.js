@@ -26,11 +26,14 @@ const YOUR_DOMAIN = "http://localhost:3000";
 
 const PaymentPost = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, userId } = req.body;
     const payment = await stripe.paymentIntents.create({
       automatic_payment_methods: { enabled: true },
       amount: amount,
       currency: "usd",
+      metadata: {
+        userId, // Serialize cartItems to a string
+      },
     });
     res.send({ clientSecret: payment.client_secret });
   } catch (error) {
@@ -39,12 +42,34 @@ const PaymentPost = async (req, res) => {
 };
 
 const getPayment = async (req, res) => {
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+  try {
+    const { paymentIntentId } = req.body;
 
-  res.send({
-    status: session.status,
-    customer_email: session.customer_details.email,
-  });
+    // Fetch the PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    // Fetch the Charge using latest_charge from PaymentIntent
+    if (paymentIntent.latest_charge) {
+      const charge = await stripe.charges.retrieve(paymentIntent.latest_charge);
+      // console.log("Charge retrieved:", charge);
+
+      const userId = paymentIntent.metadata.userId;
+      console.log("User Recieved:", userId);
+
+      res.send({
+        paymentIntent,
+        charge,
+        userId, // Card details here
+      });
+    } else {
+      res
+        .status(404)
+        .send({ error: "No charge found for the given PaymentIntent." });
+    }
+  } catch (error) {
+    console.error("Error retrieving payment details:", error);
+    res.status(500).send({ error: error.message });
+  }
 };
 
 module.exports = {
