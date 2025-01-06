@@ -1,38 +1,21 @@
+const { placeOrder } = require("./orderController");
+const db = require("../models/index");
+const Orders = db.orders;
 const stripe = require("stripe")(
   "sk_test_51QchuML6qcJ4o2wV89HbmyTD0I5utKo51OFVuEoP7DXASi64at6sWfxdyG9F81lnZSvxIK91aF48PMNpdMzC4drs00JWsW0ZfN"
 );
 const YOUR_DOMAIN = "http://localhost:3000";
 
-// const PaymentPost = async (req, res) => {
-//   const session = await stripe.checkout.sessions.create({
-//     ui_mode: "hosted",
-//     line_items: [
-//       {
-//         price_data: {
-//           currency: "usd",
-//           product_data: {
-//             name: "T-shirt",
-//           },
-//           unit_amount: 2000,
-//         },
-//         quantity: 1,
-//       },
-//     ],
-//     mode: "payment",
-//     success_url: `${YOUR_DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
-//   });
-//   res.send({ clientSecret: session.client_secret });
-// };
-
 const PaymentPost = async (req, res) => {
   try {
-    const { amount, userId } = req.body;
+    const { amount, userId, selectedAddress } = req.body;
     const payment = await stripe.paymentIntents.create({
       automatic_payment_methods: { enabled: true },
       amount: amount,
       currency: "usd",
       metadata: {
-        userId, // Serialize cartItems to a string
+        userId,
+        selectedAddress,
       },
     });
     res.send({ clientSecret: payment.client_secret });
@@ -43,24 +26,47 @@ const PaymentPost = async (req, res) => {
 
 const getPayment = async (req, res) => {
   try {
-    const { paymentIntentId } = req.body;
+    const { paymentIntentId } = req.query;
 
+    const checkOrder = await Orders.findAll({
+      where: { payment_id: paymentIntentId },
+    });
+    if (checkOrder.length > 0) {
+      res.status(500).json({
+        success: false,
+        message: "Order already placed",
+      });
+      return;
+    }
     // Fetch the PaymentIntent
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-    // Fetch the Charge using latest_charge from PaymentIntent
     if (paymentIntent.latest_charge) {
       const charge = await stripe.charges.retrieve(paymentIntent.latest_charge);
-      // console.log("Charge retrieved:", charge);
 
-      const userId = paymentIntent.metadata.userId;
-      console.log("User Recieved:", userId);
-
-      res.send({
-        paymentIntent,
-        charge,
-        userId, // Card details here
-      });
+      const { userId, selectedAddress } = paymentIntent.metadata;
+      console.log("User Recieved:", userId, selectedAddress);
+      const orderPayload = {
+        userId,
+        addressId: selectedAddress,
+        paymentMethod: charge?.payment_method_details?.type,
+        paymentDetails: charge?.payment_method_details,
+        paymentId: paymentIntentId,
+      };
+      try {
+        const placeOrderResponse = await placeOrder(orderPayload);
+        res.status(200).json({
+          success: true,
+          message: "Order placed successfully",
+          data: placeOrderResponse,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          message: "Failed to place order",
+          error: error.message,
+        });
+      }
     } else {
       res
         .status(404)

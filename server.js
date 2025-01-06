@@ -33,7 +33,7 @@ app.use("/api/brands", brandRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/favourites", favoritesRouter)
 app.use("/api/address", addressRouter);
-app.use("/", paymentRouter);
+app.use("/api/payment", paymentRouter);
 
 // testing apis
 app.get("/", (req, res) => {
