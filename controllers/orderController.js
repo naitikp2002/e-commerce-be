@@ -4,11 +4,11 @@ const Product = db.products;
 const Brand = db.brands;
 const Cart = db.cartProducts;
 const Order = db.orders;
+const User = db.users;
 const OrderItem = db.order_items;
 
 const placeOrder = async (data) => {
-  const { userId, addressId, paymentMethod, paymentDetails, paymentId } =
-    data;
+  const { userId, addressId, paymentMethod, paymentDetails, paymentId } = data;
   //   const t = await sequelize.transaction();
   try {
     // Fetch cart items
@@ -75,21 +75,99 @@ const placeOrder = async (data) => {
   }
 };
 
-const getAllCategories = async (req, res) => {
+const getOrderDetailsByOrderId = async (req, res, next) => {
   try {
-    const categories = await Category.findAll({
-      attributes: ["id", "name"],
+    const orderId = req.params.id;
+    const orders = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              as: "product",
+            },
+          ],
+          as: "order_items",
+        },
+      ],
     });
-    return res
-      .status(200)
-      .json({ message: "Categories fetched successfully", categories });
+    res.status(200).json(orders);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching categories", error: error.message });
+    next(error);
+  }
+};
+
+const getOrderListAdmin = async (req, res, next) => {
+  try {
+    const orders = await Order.findAll({
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["name", "email"],
+        },
+      ],
+    });
+    res.status(200).json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllOrdersByUserId = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const orders = await Order.findAll({
+      where: { user_id: userId },
+      //   include: [
+      //     {
+      //       model: OrderItem,
+      //       include: [
+      //         {
+      //           model: Product,
+      //           attributes: ["name", "price"],
+      //           as: "product",
+      //         },
+      //       ],
+      //       as: "order_items",
+      //     },
+      //   ],
+    });
+    res.status(200).json(orders);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.findAll({
+      // include: [
+      //   {
+      //     model: OrderItem,
+      //     include: [
+      //       {
+      //         model: Product,
+      //         attributes: ["name", "price"],
+      //         as: "product",
+      //       },
+      //     ],
+      //     as: "order_items",
+      //   },
+      // ],
+    });
+    res.status(200).json(orders);
+  } catch (error) {
+    next(error);
   }
 };
 
 module.exports = {
   placeOrder,
+  getAllOrdersByUserId,
+  getAllOrders,
+  getOrderDetailsByOrderId,
+  getOrderListAdmin,
 };

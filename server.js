@@ -12,6 +12,8 @@ const cartRouter = require("./routes/cartRoutes");
 const favoritesRouter = require("./routes/favoritesRoutes");
 const addressRouter = require("./routes/addressRoutes");
 const paymentRouter = require("./routes/paymentRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const orderItemsRoutes = require("./routes/orderItemsRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 var corsOptions = {
@@ -31,9 +33,11 @@ app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/favourites", favoritesRouter)
+app.use("/api/favourites", favoritesRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/payment", paymentRouter);
+app.use("/api/orders", orderRoutes);
+app.use("/api/order-details", orderItemsRoutes);
 
 // testing apis
 app.get("/", (req, res) => {
@@ -43,7 +47,6 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 app.use(errorHandler);
-
 
 app.listen(PORT, (req, res) => {
   console.log(`Server is running on port ${PORT}`);

@@ -45,7 +45,25 @@ const getUserAddresses = async (req, res, next) => {
   }
 };
 
+const getAddressById = async (req, res, next) => {
+  try {
+    const user_id = req.user.id; // Assuming user ID is available in req.user
+    const id = req.params.id;
+    const address = await Address.findOne({
+      where: { id },
+    });
+
+    return res.status(200).json({
+      message: "Addresses fetched successfully",
+      address,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   addAddress,
   getUserAddresses,
+  getAddressById,
 };
