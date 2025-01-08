@@ -101,7 +101,27 @@ const getOrderDetailsByOrderId = async (req, res, next) => {
 
 const getOrderListAdmin = async (req, res, next) => {
   try {
-    const orders = await Order.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const { sort_term, direction, search } = req.query;
+
+    const whereClause = {};
+
+    if (search) {
+      whereClause[db.Sequelize.Op.or] = [
+        { payment_status: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { "$user.name$": { [db.Sequelize.Op.like]: `%${search}%` } },
+      ];
+    }
+
+    const order = [];
+    if (sort_term && direction) {
+      order.push([sort_term, direction]);
+    }
+
+    const { count, rows: orders } = await Order.findAndCountAll({
+      where: whereClause,
       include: [
         {
           model: User,
@@ -109,8 +129,22 @@ const getOrderListAdmin = async (req, res, next) => {
           attributes: ["name", "email"],
         },
       ],
+      order,
+      limit,
+      offset,
     });
-    res.status(200).json(orders);
+
+    res.status(200).json({
+      orders,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalItems: count,
+      filters: {
+        search: search || null,
+        sort_term: sort_term || null,
+        direction: direction || null,
+      },
+    });
   } catch (error) {
     next(error);
   }
