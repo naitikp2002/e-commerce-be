@@ -8,7 +8,9 @@ const { ref, uploadBytes, getDownloadURL } = require("firebase/storage");
 const { storage } = require("../config/firebase");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
-
+const stripe = require("stripe")(
+  "sk_test_51QchuML6qcJ4o2wV89HbmyTD0I5utKo51OFVuEoP7DXASi64at6sWfxdyG9F81lnZSvxIK91aF48PMNpdMzC4drs00JWsW0ZfN"
+);
 const registerUser = async (req, res, next) => {
   try {
     console.log(req.body);
@@ -80,6 +82,22 @@ const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
+
+    let stripeCustomerId = user.stripe_customer_id;
+
+    if (!stripeCustomerId) {
+      // Create a new Stripe customer
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name, // Assuming user has firstName and lastName fields
+        metadata: { userId: user.id.toString() }, // Add additional metadata if needed
+      });
+      console.log("Customer", customer);
+      // Update the user in your database with the Stripe customer ID
+      stripeCustomerId = customer.id;
+      user.stripe_customer_id = stripeCustomerId;
+      await user.save();
+    }
 
     // Generate JWT Token
     const token = jwt.sign(

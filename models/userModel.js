@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    stripe_customer_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },{
     underscored: true,
   });
