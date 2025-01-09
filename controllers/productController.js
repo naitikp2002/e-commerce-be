@@ -202,6 +202,7 @@ const getAllProducts = async (req, res) => {
 
 const getProductById = async (req, res, next) => {
   try {
+    const userId = req.user.id; // Add this line
     const { id } = req.params;
     const product = await Product.findByPk(id, {
       include: [
@@ -212,6 +213,13 @@ const getProductById = async (req, res, next) => {
         {
           model: Category,
           as: "category",
+        },
+        {
+          model: Favourites,
+          as: "favourites",
+          where: { user_id: userId },
+          required: false, // Include products even if they are not in favourites
+          attributes: ["id"], // Only need the id to check if it exists
         },
       ],
     });
@@ -236,6 +244,7 @@ const getProductById = async (req, res, next) => {
       product: {
         ...productJSON,
         images,
+        favourite: productJSON.favourites.length > 0,
       },
     });
   } catch (error) {
