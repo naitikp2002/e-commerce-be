@@ -131,9 +131,43 @@ const getSavedCards = async (req, res) => {
   }
 };
 
+const makePaymentUsingSavedCard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findOne({
+      where: { id: userId },
+    });
+    const stripeCustomerId = user.stripe_customer_id;
+    const { paymentMethodId, amount, selectedAddress } = req.body;
+
+    if (!paymentMethodId) {
+      return res.status(400).json({ message: "Payment method ID is required" });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+      customer: stripeCustomerId,
+      payment_method: paymentMethodId,
+      metadata: {
+        userId,
+        selectedAddress,
+      },
+      off_session: true, // Off-session payments (optional)
+      confirm: true, // Confirm immediately
+    });
+
+    res.status(200).json({ paymentIntent });
+  } catch (error) {
+    console.error("Error making payment:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getPayment,
   PaymentPost,
   createSetupIntent,
   getSavedCards,
+  makePaymentUsingSavedCard,
 };
