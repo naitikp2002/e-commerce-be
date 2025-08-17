@@ -14,10 +14,10 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "ueyttn0bbubnj5vg",
-    "password": "1Y0twJQP4P8cFkro2gcq",
-    "database": "bzxickk0wtit40sm2q1e",
-    "host": "bzxickk0wtit40sm2q1e-mysql.services.clever-cloud.com",
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   }
 }
